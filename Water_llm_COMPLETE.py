@@ -120,3 +120,39 @@ def call_gpt(prompt, temperature=0.3):
         temperature=temperature
     )
     return response.choices[0].message.content.strip()
+
+def calculate_overflow_risk(rain_mm, tank_fill_percent):
+    """
+    Calculate overflow risk score based on rainfall and tank fill level.
+    """
+    if rain_mm > 20 and tank_fill_percent > 90:
+        return "HIGH"
+    elif rain_mm > 10 and tank_fill_percent > 75:
+        return "MEDIUM"
+    return "LOW"
+
+def overflow_control(location="London"):
+    config = get_integration_config(location)
+    weather = fetch_weather_data(location)
+    sensor = fetch_sensor_data(location)
+
+    # Extract rainfall and tank level from APIs
+    rain_mm = 0
+    tank_fill = 0
+    try:
+        rain_mm = weather.get("forecast", {}).get("rainfall_mm", 0)
+        tank_fill = sensor.get("telemetry", {}).get("tank_fill_percent", 0)
+    except Exception:
+        return {"error": "Failed to extract weather/sensor inputs."}
+
+    risk = calculate_overflow_risk(rain_mm, tank_fill)
+    result = {"rain_mm": rain_mm, "tank_fill_percent": tank_fill, "risk": risk}
+
+    if risk == "HIGH":
+        result["action"] = actuate_asset("open_overflow_valve", location)
+    elif risk == "MEDIUM":
+        result["action"] = actuate_asset("start_buffer_pump", location)
+    else:
+        result["action"] = "🟢 No control action required"
+
+    return result

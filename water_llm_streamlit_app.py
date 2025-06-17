@@ -47,15 +47,12 @@ The **Water LLM Engine** monitors **SCADA systems**, **IoT sensor data**, and **
     st.markdown("### ⚙️ Water LLM Engine Functional Overview")
 
     engine_data = {
-        "Function Name": [
-            "get_real_time_inputs", "predict_overflow", "dynamic_control_advice",
+        "Function Name": ["get_real_time_inputs", "predict_overflow", "dynamic_control_advice",
             "detect_anomalies", "compliance_check", "run_all_analyses",
             "get_logged_interventions", "get_parameter_descriptions",
             "generate_regulatory_report", "recommend_infrastructure_upgrades",
-            "actuate_asset", "alert_operator", "suggest_action_for_risk"
-        ],
-        "Layman Description": [
-            "Fetches real-time or simulated input data like rainfall, inflow, tank level, etc.",
+            "actuate_asset", "alert_operator", "suggest_action_for_risk", "calculate_overflow_risk", "overflow_control"],
+        "Layman Description": ["Fetches real-time or simulated input data like rainfall, inflow, tank level, etc.",
             "Predicts whether an overflow might happen soon based on system inputs.",
             "Suggests how to adjust pumps/valves to reduce overflow risk.",
             "Identifies strange sensor behavior or equipment issues needing attention.",
@@ -67,8 +64,7 @@ The **Water LLM Engine** monitors **SCADA systems**, **IoT sensor data**, and **
             "Finds recurring problems and suggests upgrades to avoid future failures.",
             "Simulates or sends control commands (like opening a valve) to SCADA.",
             "Sends risk alerts and advisories to the operations team.",
-            "Generates AI suggestions for any described risk in plain terms."
-        ]
+            "Generates AI suggestions for any described risk in plain terms.", "Computes overflow risk using rainfall and tank level thresholds.", "Automatically triggers SCADA or PLC actions based on risk score."]
     }
 
     import pandas as pd
