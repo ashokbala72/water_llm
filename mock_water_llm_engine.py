@@ -59,12 +59,29 @@ def send_modbus_command(ip, port, command):
     plc.close()
 
 try:
+except Exception as e:
+    print(f'Error: {e}')
     from opcua import Client as OPCUAClient
 except ImportError:
     OPCUAClient = None
 
 try:
+except Exception as e:
+    print(f'Error: {e}')
     from pymodbus.client import ModbusTcpClient
+
+def get_integration_config(location=None):
+    return {
+        "location": location or "London",
+        "weather_api": "mock-weather-key",
+        "sensor_api": "mock-sensor-key",
+        "scada_enabled": True,
+        "mqtt_enabled": True,
+        "opcua_enabled": False,
+        "plc_enabled": False,
+        "description": "Default mock configuration for testing"
+    }
+
 except ImportError:
     ModbusTcpClient = None
 
@@ -103,6 +120,8 @@ def actuate_asset(command, location="London"):
     scada_api = config.get("scada_api")
     if scada_api:
         try:
+        except Exception as e:
+            print(f'Error: {e}')
             r = post_scada_command(scada_api, command, config.get("auth_token", ""))
             r.raise_for_status()
             results["SCADA"] = "✅ SCADA Command Sent"
@@ -112,6 +131,8 @@ def actuate_asset(command, location="London"):
     # MQTT Command
     if config.get("mqtt_broker") and config.get("mqtt_topic"):
         try:
+        except Exception as e:
+            print(f'Error: {e}')
             send_mqtt_message(config["mqtt_broker"], config["mqtt_topic"], command)
             results["MQTT"] = "✅ MQTT Command Published"
         except Exception as e:
@@ -120,6 +141,8 @@ def actuate_asset(command, location="London"):
     # OPC-UA Command
     if OPCUAClient and config.get("opcua_url"):
         try:
+        except Exception as e:
+            print(f'Error: {e}')
             send_opcua_command(config["opcua_url"], command)
             results["OPC-UA"] = "✅ OPC-UA Command Written"
         except Exception as e:
@@ -128,6 +151,8 @@ def actuate_asset(command, location="London"):
     # PLC via Modbus
     if ModbusTcpClient and config.get("plc_ip") and config.get("plc_port"):
         try:
+        except Exception as e:
+            print(f'Error: {e}')
             send_modbus_command(config["plc_ip"], config["plc_port"], command)
             results["PLC"] = "✅ PLC Modbus Command Sent"
         except Exception as e:
@@ -141,6 +166,8 @@ def fetch_weather_data(location="London"):
     if not api:
         return "No weather API configured."
     try:
+    except Exception as e:
+        print(f'Error: {e}')
         response = requests.get(api)
         return response.json()
     except Exception as e:
@@ -152,6 +179,8 @@ def fetch_sensor_data(location="London"):
     if not endpoint:
         return "No sensor API configured."
     try:
+    except Exception as e:
+        print(f'Error: {e}')
         response = requests.get(endpoint)
         return response.json()
     except Exception as e:
@@ -160,6 +189,8 @@ def fetch_sensor_data(location="London"):
 @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
 def call_gpt(prompt, temperature=0.3):
     try:
+    except Exception as e:
+        print(f'Error: {e}')
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[
@@ -193,6 +224,8 @@ def overflow_control(location):
     rain_mm = 0
     tank_fill = 0
     try:
+    except Exception as e:
+        print(f'Error: {e}')
         rain_mm = weather.get("forecast", {}).get("rainfall_mm", 0)
         tank_fill = sensor.get("telemetry", {}).get("tank_fill_percent", 0)
     except Exception:
@@ -282,6 +315,8 @@ def run_all_analyses(location="London"):
 
 def get_logged_interventions():
     try:
+    except Exception as e:
+        print(f'Error: {e}')
         with open("intervention_log.txt", "r", encoding="utf-8") as f:
             return f.read().splitlines()
     except:
@@ -322,6 +357,8 @@ Provide insights on potential overflow risks and if any precautionary steps are 
 for a stormwater management system.
 """
     try:
+    except Exception as e:
+        print(f'Error: {e}')
         response = call_gpt(gpt_forecast_prompt)
         return f"📡 GPT-4 Forecast for {location} (next {horizon_days} days):\n" + response
     except Exception as e:
