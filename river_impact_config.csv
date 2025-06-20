@@ -1,0 +1,6 @@
+location,zone,river_name,impact_severity
+London,Zone A,Thames,HIGH
+London,Zone B,Lea,MEDIUM
+Manchester,Zone A,Irwell,LOW
+Leeds,Zone C,Aire,HIGH
+Birmingham,Zone A,Rea,MEDIUM

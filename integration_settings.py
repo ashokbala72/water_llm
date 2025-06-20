@@ -73,6 +73,18 @@ if uploaded_asset_file:
     st.success("✅ asset_config.csv saved.")
     st.dataframe(pd.read_csv(uploaded_asset_file))
 
+
+# CSV upload for river_impact_config.csv
+st.subheader("📁 Upload river_impact_config.csv")
+st.caption("Expected columns: location, zone, river_name, impact_severity (HIGH/MEDIUM/LOW)")
+uploaded_river_file = st.file_uploader("Upload river impact config file", type=["csv"], key="river_csv")
+if uploaded_river_file:
+    with open("river_impact_config.csv", "wb") as f:
+        f.write(uploaded_river_file.getbuffer())
+    st.success("✅ river_impact_config.csv saved.")
+    st.dataframe(pd.read_csv(uploaded_river_file))
+
+
 # Save button
 if st.button("💾 Save Integration Settings"):
     cursor.execute("""

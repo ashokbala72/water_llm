@@ -1,145 +1,81 @@
-
 import streamlit as st
+import inspect
 import json
-from Water_llm_COMPLETE_balancer_PROD_READY import (
-    post_scada_command,
-    send_mqtt_message,
-    send_opcua_command,
-    send_modbus_command,
-    fetch_weather_data,
-    fetch_sensor_data,
-    actuate_asset,
-    call_gpt,
-    calculate_overflow_risk,
-    overflow_control,
-    get_real_time_inputs,
-    predict_overflow,
-    dynamic_control_advice,
-    detect_anomalies,
-    compliance_check,
-    run_all_analyses,
-    get_logged_interventions,
-    get_parameter_descriptions,
-    generate_regulatory_report,
-    recommend_infrastructure_upgrades,
-    alert_operator,
-    load_balance_tanks,
-    suggest_action_for_risk,
-    fetch_tank_config,
-    forecast_weather_with_gpt,
-    storm_response_coordinator,
-    check_asset_availability
-)
+import pandas as pd
+from Water_llm_ENGINE_WITH_CONTEXTUAL_ADVISORY import *
 
-st.set_page_config(page_title="Water LLM Validator", layout="wide")
-st.title("🧪 Water LLM Function Validator")
+st.set_page_config(layout="wide")
+st.title("💧 Water LLM Engine Dashboard")
 
-tabs = st.tabs(["📘 Overview", "🧪 Function Validator"])
+# Fetch all user-defined functions from the engine
+engine_funcs = [obj for name, obj in globals().items() if inspect.isfunction(obj) and obj.__module__ == "Water_llm_ENGINE_WITH_CONTEXTUAL_ADVISORY"]
+func_map = {f.__name__: f for f in engine_funcs}
 
-with tabs[0]:
-    st.header("📘 Function Diagnostics Overview")
+# UI Tabs
+tab1, tab2 = st.tabs(["📌 Overview", "🧪 Function Validator"])
 
-    function_docs = {
-        "post_scada_command": "Connects to SCADA and sends a control command via POST request.",
-        "send_mqtt_message": "Sends MQTT message to broker/topic for control signaling.",
-        "send_opcua_command": "Executes command on OPC-UA server node.",
-        "send_modbus_command": "Writes command to Modbus-compatible PLC over TCP.",
-        "fetch_weather_data": "Fetches weather forecast (rainfall, timestamp) from configured API.",
-        "fetch_sensor_data": "Retrieves inflow rate and tank fill % from live or mock sensor API.",
-        "actuate_asset": "Sends command to one or more control interfaces (SCADA/MQTT/OPC/PLC).",
-        "call_gpt": "Uses GPT-4 to generate advisory or simulate weather/risk narratives.",
-        "calculate_overflow_risk": "Assesses overflow risk from rainfall and tank fill.",
-        "overflow_control": "Executes valve/pump actions based on overflow risk.",
-        "get_real_time_inputs": "Merges weather + sensor inputs into single snapshot.",
-        "predict_overflow": "Predicts if overflow is likely (True/False).",
-        "dynamic_control_advice": "Suggests pump or valve tuning based on tank fill.",
-        "detect_anomalies": "Detects sensor outliers like negative flow or tank overfill.",
-        "compliance_check": "Determines if current state violates regulatory thresholds.",
-        "run_all_analyses": "Executes prediction, risk, compliance, anomaly, advisory in one call.",
-        "get_logged_interventions": "Returns recent actuation or intervention logs.",
-        "get_parameter_descriptions": "Describes system config parameters (rainfall, fill % etc).",
-        "generate_regulatory_report": "Creates formatted report with location, rainfall, compliance.",
-        "recommend_infrastructure_upgrades": "Suggests structural fixes like tanks or delay buffers.",
-        "alert_operator": "Sends warning to operator console for manual override.",
-        "load_balance_tanks": "Checks and redistributes tank load using real capacities.",
-        "suggest_action_for_risk": "Returns advisory action string based on risk level.",
-        "fetch_tank_config": "Loads zone and capacity for each tank from tank_config.csv.",
-        "forecast_weather_with_gpt": "Uses GPT-4 to predict weather and risks over next few days.",
-        "storm_response_coordinator": "Full storm scenario manager: prediction, control, alert, reporting.",
-        "check_asset_availability": "Validates if declared assets (e.g., pumps, valves) are operational as per config."
+# Overview Tab
+with tab1:
+    st.header("📌 Engine Function Overview")
+    for fname, func in func_map.items():
+        with st.expander(f"🔧 {fname}() - Click to expand"):
+            doc = inspect.getdoc(func)
+            st.markdown(f"**Purpose:**\n> {doc if doc else 'No docstring provided.'}")
+            st.markdown(f"**Integration Points:**\n> Typically involves DB/API/CSV/SCADA/GPT based on implementation.")
+            st.markdown(f"**Post-Execution:**\n> Logs actions, returns results, or triggers infrastructure commands.")
+
+# Validator Tab
+with tab2:
+    st.header("🧪 Validate All Engine Functions")
+    city = st.selectbox("🌍 Select City for Testing", ["London", "Manchester", "Leeds", "Birmingham"])
+
+    dummy_inputs = {
+        'location': city,
+        'command': 'test_command',
+        'token': 'dummy_token',
+        'scada_api': 'http://example.com/api',
+        'broker': 'localhost',
+        'topic': 'test/topic',
+        'url': 'opc.tcp://localhost:4840',
+        'ip': '127.0.0.1',
+        'port': 502,
+        'rain_mm': 30,
+        'tank_fill_percent': 95,
+        'rainfall_mm': 85,
+        'overflow_triggered': True,
+        'sensor_data': {'tank_fill_percent': 101, 'inflow_rate_lps': -5},
+        'risk_level': 'HIGH',
+        'horizon_days': 3,
+        'message': 'Test alert'
     }
 
-    for fname, desc in function_docs.items():
-        with st.expander(f"🔹 {fname}", expanded=False):
-            st.markdown(f"- {desc}")
+    dummy_inputs['rainfall_mm'] = int(dummy_inputs['rainfall_mm'])
+    dummy_inputs['tank_fill_percent'] = int(dummy_inputs['tank_fill_percent'])
 
-with tabs[1]:
-    st.header("🧪 Validate Functions in Engine")
-    location = st.selectbox("🌍 Select City for Tests", ["London", "Manchester", "Birmingham", "Leeds"])
-
-    all_functions = {
-        "post_scada_command": post_scada_command,
-        "send_mqtt_message": send_mqtt_message,
-        "send_opcua_command": send_opcua_command,
-        "send_modbus_command": send_modbus_command,
-        "fetch_weather_data": fetch_weather_data,
-        "fetch_sensor_data": fetch_sensor_data,
-        "actuate_asset": actuate_asset,
-        "call_gpt": call_gpt,
-        "calculate_overflow_risk": calculate_overflow_risk,
-        "overflow_control": overflow_control,
-        "get_real_time_inputs": get_real_time_inputs,
-        "predict_overflow": predict_overflow,
-        "dynamic_control_advice": dynamic_control_advice,
-        "detect_anomalies": detect_anomalies,
-        "compliance_check": compliance_check,
-        "run_all_analyses": run_all_analyses,
-        "get_logged_interventions": get_logged_interventions,
-        "get_parameter_descriptions": get_parameter_descriptions,
-        "generate_regulatory_report": generate_regulatory_report,
-        "recommend_infrastructure_upgrades": recommend_infrastructure_upgrades,
-        "alert_operator": alert_operator,
-        "load_balance_tanks": load_balance_tanks,
-        "suggest_action_for_risk": suggest_action_for_risk,
-        "fetch_tank_config": fetch_tank_config,
-        "forecast_weather_with_gpt": forecast_weather_with_gpt,
-        "storm_response_coordinator": storm_response_coordinator,
-        "check_asset_availability": check_asset_availability
-    }
-
-    for fname, fcall in all_functions.items():
-        with st.expander(f"🔹 {fname}", expanded=False):
+    for fname, func in func_map.items():
+        with st.expander(f"🧪 {fname}() - Click to run and view result"):
             try:
-                with st.spinner("Running..."):
-                    result = (
-                        fcall(command='open_valve') if fname == 'actuate_asset'
-                        else fcall('Describe tank risks and recommendations') if fname == 'call_gpt'
-                        else fcall(10, 50) if fname == 'calculate_overflow_risk'
-                        else fcall(location) if fname in [
-                            'overflow_control', 'get_real_time_inputs', 'load_balance_tanks',
-                            'recommend_infrastructure_upgrades', 'forecast_weather_with_gpt',
-                            'storm_response_coordinator', 'check_asset_availability'
-                        ]
-                        else fcall(rainfall_mm=10, tank_fill_percent=50) if fname == 'predict_overflow'
-                        else fcall({'tank_fill_percent': 95, 'inflow_rate_lps': 120}) if fname == 'detect_anomalies'
-                        else fcall(rainfall_mm=85, overflow_triggered=True) if fname == 'compliance_check'
-                        else fcall(location=location, rainfall_mm=85, risk_level='HIGH') if fname == 'generate_regulatory_report'
-                        else fcall(65) if fname == 'dynamic_control_advice'
-                        else fcall('HIGH') if fname == 'suggest_action_for_risk'
-                        else fcall('London') if fname == 'fetch_tank_config'
-                        else fcall()
-                    )
+                sig = inspect.signature(func)
+                args = {}
+                for param in sig.parameters.values():
+                    if param.name in dummy_inputs:
+                        args[param.name] = dummy_inputs[param.name]
+                    elif param.default == inspect.Parameter.empty:
+                        args[param.name] = city
 
-                    st.success("✅ Function executed successfully")
-                    if isinstance(result, (dict, list)):
-                        st.json(result)
-                    elif isinstance(result, str):
-                        try:
-                            st.json(json.loads(result))
-                        except:
-                            st.code(result)
-                    else:
-                        st.write(result)
+                result = func(**args) if args else func()
+                st.success("✅ Function executed successfully")
+
+                if fname == "check_asset_availability" and isinstance(result, dict) and "assets" in result:
+                    st.subheader("🔍 Asset Availability Details")
+                    st.json(result["assets"])
+                elif fname == "get_river_impact_severity" and isinstance(result, list):
+                    st.subheader("🌊 River Impact Zones")
+                    st.dataframe(pd.DataFrame(result))
+                elif isinstance(result, (dict, list)):
+                    st.json(result)
+                else:
+                    st.write(result)
 
             except Exception as e:
-                st.error(f"❌ Error while executing `{fname}`\n\n{str(e)}")
+                st.error(f"❌ Execution failed: {e}")
