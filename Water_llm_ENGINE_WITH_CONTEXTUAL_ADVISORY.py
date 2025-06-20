@@ -425,3 +425,16 @@ def generate_contextual_advisory(location='London'):
         return call_gpt(prompt)
     except Exception as e:
         return {"error": f"Failed to generate advisory: {str(e)}"}
+
+
+
+def get_river_impact_severity(location='London'):
+    """Return river impact severity from config CSV."""
+    import pandas as pd
+    try:
+        df = pd.read_csv('river_impact_config.csv')
+        df = df[df['location'] == location]
+        return df.to_dict(orient='records')
+    except Exception as e:
+        logger.error(f"❌ Failed to load river impact data: {e}")
+        return []
