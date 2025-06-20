@@ -1,0 +1,12 @@
+location,zone,capacity
+London,North,100
+London,South,150
+London,Central,120
+Manchester,East,110
+Manchester,West,140
+Birmingham,ZoneA,90
+Birmingham,ZoneB,130
+Leeds,North,115
+Leeds,South,105
+Glasgow,East,125
+Glasgow,West,135
