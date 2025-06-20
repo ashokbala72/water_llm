@@ -1,7 +1,7 @@
 
 import streamlit as st
 import json
-from Water_llm_COMPLETE_balancer import (
+from Water_llm_COMPLETE_balancer_PROD_READY import (
     post_scada_command,
     send_mqtt_message,
     send_opcua_command,
@@ -27,12 +27,12 @@ from Water_llm_COMPLETE_balancer import (
     suggest_action_for_risk,
     fetch_tank_config,
     forecast_weather_with_gpt,
-    storm_response_coordinator
+    storm_response_coordinator,
+    check_asset_availability
 )
 
 st.set_page_config(page_title="Water LLM Validator", layout="wide")
 st.title("🧪 Water LLM Function Validator")
-st.success("✅ You are running the rebuilt Function Validator Streamlit app")
 
 tabs = st.tabs(["📘 Overview", "🧪 Function Validator"])
 
@@ -65,7 +65,8 @@ with tabs[0]:
         "suggest_action_for_risk": "Returns advisory action string based on risk level.",
         "fetch_tank_config": "Loads zone and capacity for each tank from tank_config.csv.",
         "forecast_weather_with_gpt": "Uses GPT-4 to predict weather and risks over next few days.",
-        "storm_response_coordinator": "Full storm scenario manager: prediction, control, alert, reporting."
+        "storm_response_coordinator": "Full storm scenario manager: prediction, control, alert, reporting.",
+        "check_asset_availability": "Validates if declared assets (e.g., pumps, valves) are operational as per config."
     }
 
     for fname, desc in function_docs.items():
@@ -74,7 +75,7 @@ with tabs[0]:
 
 with tabs[1]:
     st.header("🧪 Validate Functions in Engine")
-    location = st.selectbox("🌍 Select City for Tests", ["London"])
+    location = st.selectbox("🌍 Select City for Tests", ["London", "Manchester", "Birmingham", "Leeds"])
 
     all_functions = {
         "post_scada_command": post_scada_command,
@@ -102,11 +103,11 @@ with tabs[1]:
         "suggest_action_for_risk": suggest_action_for_risk,
         "fetch_tank_config": fetch_tank_config,
         "forecast_weather_with_gpt": forecast_weather_with_gpt,
-        "storm_response_coordinator": storm_response_coordinator
+        "storm_response_coordinator": storm_response_coordinator,
+        "check_asset_availability": check_asset_availability
     }
 
-    for fname in all_functions:
-        fcall = all_functions[fname]
+    for fname, fcall in all_functions.items():
         with st.expander(f"🔹 {fname}", expanded=False):
             try:
                 with st.spinner("Running..."):
@@ -117,7 +118,7 @@ with tabs[1]:
                         else fcall(location) if fname in [
                             'overflow_control', 'get_real_time_inputs', 'load_balance_tanks',
                             'recommend_infrastructure_upgrades', 'forecast_weather_with_gpt',
-                            'storm_response_coordinator'
+                            'storm_response_coordinator', 'check_asset_availability'
                         ]
                         else fcall(rainfall_mm=10, tank_fill_percent=50) if fname == 'predict_overflow'
                         else fcall({'tank_fill_percent': 95, 'inflow_rate_lps': 120}) if fname == 'detect_anomalies'
@@ -134,8 +135,7 @@ with tabs[1]:
                         st.json(result)
                     elif isinstance(result, str):
                         try:
-                            parsed = json.loads(result)
-                            st.json(parsed)
+                            st.json(json.loads(result))
                         except:
                             st.code(result)
                     else:
