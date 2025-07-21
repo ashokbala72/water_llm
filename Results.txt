@@ -1,0 +1,15 @@
+🔄 Loading model: Mistral-7B...
+❌ Failed to load or run Mistral-7B: You are trying to access a gated repo.
+Make sure to have access to it at https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.1.
+403 Client Error. (Request ID: Root=1-687e2344-4669b88a05afcb4618623558;d2ddce54-f5e7-4f89-9a6e-49667dcb60f7)
+
+Cannot access gated repo for url https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.1/resolve/main/config.json.
+Access to model mistralai/Mistral-7B-Instruct-v0.1 is restricted and you are not in the authorized list. Visit https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.1 to ask for access.
+
+🔄 Loading model: LLaMA-3-70B...
+❌ Failed to load or run LLaMA-3-70B: You are trying to access a gated repo.
+Make sure to have access to it at https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct.
+403 Client Error. (Request ID: Root=1-687e2344-0f39d49d2dac738536fa7fe7;8bac7cb8-c6b6-44f0-bae2-e74f79c35844)
+
+Cannot access gated repo for url https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct/resolve/main/config.json.
+Access to model meta-llama/Meta-Llama-3-70B-Instruct is restricted and you are not in the authorized list. Visit https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct to ask for access.
