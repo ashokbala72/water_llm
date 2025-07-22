@@ -5,4 +5,4 @@ paho-mqtt
 opcua
 pymodbus
 fastapi
-unicorn
+uvicorn
