@@ -4,3 +4,5 @@ python-dotenv
 paho-mqtt
 opcua
 pymodbus
+fastapi
+uvicorn
