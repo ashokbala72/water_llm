@@ -1,119 +1,99 @@
-# main.py
-from fastapi import FastAPI, Query, Body
+from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Optional
-from Water_llm_ENGINE_WITH_CONTEXTUAL_ADVISORY import *
-try:
-    import openai
-    print("✅ OpenAI module loaded successfully.")
-except ModuleNotFoundError as e:
-    print(f"❌ Module load failed: {e}")
 
-app = FastAPI(title="Water LLM Stormwater Engine API")
+from Water_llm_ENGINE_WITH_CONTEXTUAL_ADVISORY import (
+    overflow_control, run_all_analyses, load_balance_tanks,
+    forecast_weather_with_gpt, storm_response_coordinator,
+    get_real_time_inputs, compare_predictions_with_actuals,
+    check_asset_availability, get_logged_interventions,
+    generate_regulatory_report, recommend_infrastructure_upgrades,
+    suggest_action_for_risk, generate_contextual_advisory,
+    get_parameter_descriptions, get_river_impact_severity
+)
 
-class AnomalyInput(BaseModel):
-    tank_fill_percent: float
-    inflow_rate_lps: float
+app = FastAPI(title="Water LLM Engine API")
 
-class OverflowInput(BaseModel):
-    rainfall_mm: float
-    tank_fill_percent: float
+# -----------------------------
+# 🔧 Request Models
+# -----------------------------
+class LocationInput(BaseModel):
+    location: str = 'London'
 
-class ComplianceInput(BaseModel):
-    rainfall_mm: float
-    overflow_triggered: bool
+class RiskInput(BaseModel):
+    risk_level: str
 
 class ReportInput(BaseModel):
     location: str
     rainfall_mm: float
     risk_level: str
 
-class AlertInput(BaseModel):
-    message: str
+class ForecastInput(BaseModel):
+    location: str = 'London'
+    horizon_days: Optional[int] = 3
 
-class SuggestionInput(BaseModel):
-    risk_level: str
+# -----------------------------
+# 🔁 Core Endpoints
+# -----------------------------
+@app.post("/overflow-control")
+def api_overflow_control(input: LocationInput):
+    return overflow_control(input.location)
 
-@app.get("/get_integration_config")
-def api_get_integration_config(location: str = "London"):
-    return get_integration_config(location)
+@app.post("/run-analyses")
+def api_run_all_analyses(input: LocationInput):
+    return run_all_analyses(input.location)
 
-@app.get("/actuate_asset")
-def api_actuate_asset(command: str, location: str = "London"):
-    return actuate_asset(command, location)
+@app.post("/load-balance")
+def api_load_balance(input: LocationInput):
+    return load_balance_tanks(input.location)
 
-@app.get("/overflow_control")
-def api_overflow_control(location: str = "London"):
-    return overflow_control(location)
+@app.post("/forecast")
+def api_forecast_weather(input: ForecastInput):
+    return forecast_weather_with_gpt(input.location, input.horizon_days)
 
-@app.get("/storm_response")
-def api_storm_response(location: str = "London"):
-    return storm_response_coordinator(location)
+@app.post("/storm-response")
+def api_storm_response(input: LocationInput):
+    return storm_response_coordinator(input.location)
 
-@app.get("/run_all_analyses")
-def api_run_all_analyses(location: str = "London"):
-    return run_all_analyses(location)
+@app.post("/inputs")
+def api_inputs(input: LocationInput):
+    return get_real_time_inputs(input.location)
 
-@app.get("/forecast_weather")
-def api_forecast_weather(location: str = "London", horizon_days: int = 3):
-    return forecast_weather_with_gpt(location, horizon_days)
+@app.post("/prediction-compare")
+def api_prediction_comparison(input: LocationInput):
+    return compare_predictions_with_actuals(input.location)
 
-@app.get("/load_balance_tanks")
-def api_load_balance_tanks(location: str = "London"):
-    return load_balance_tanks(location)
+@app.post("/check-assets")
+def api_check_assets(input: LocationInput):
+    return check_asset_availability(input.location)
 
-@app.get("/check_assets")
-def api_check_assets(location: str = "London"):
-    return check_asset_availability(location)
+@app.post("/infra-upgrades")
+def api_infra_upgrades(input: LocationInput):
+    return recommend_infrastructure_upgrades(input.location)
 
-@app.get("/contextual_advisory")
-def api_contextual_advisory(location: str = "London"):
-    return generate_contextual_advisory(location)
+@app.post("/risk-advice")
+def api_risk_action(input: RiskInput):
+    return suggest_action_for_risk(input.risk_level)
 
-@app.get("/compare_predictions")
-def api_compare_predictions(location: str = "London"):
-    return compare_predictions_with_actuals(location)
+@app.post("/regulatory-report")
+def api_regulatory_report(input: ReportInput):
+    return generate_regulatory_report(input.location, input.rainfall_mm, input.risk_level)
 
-@app.post("/predict_overflow")
-def api_predict_overflow_post(data: OverflowInput):
-    return predict_overflow(data.rainfall_mm, data.tank_fill_percent)
+@app.post("/contextual-advisory")
+def api_contextual_advisory(input: LocationInput):
+    return generate_contextual_advisory(input.location)
 
-@app.post("/dynamic_control_advice")
-def api_dynamic_control_advice_post(tank_fill: float = Body(...)):
-    return dynamic_control_advice(tank_fill)
+@app.post("/river-severity")
+def api_river_severity(input: LocationInput):
+    return get_river_impact_severity(input.location)
 
-@app.post("/detect_anomalies")
-def api_detect_anomalies_post(data: AnomalyInput):
-    return detect_anomalies(data.dict())
-
-@app.post("/compliance_check")
-def api_compliance_check_post(data: ComplianceInput):
-    return compliance_check(data.rainfall_mm, data.overflow_triggered)
-
-@app.post("/regulatory_report")
-def api_regulatory_report_post(data: ReportInput):
-    return generate_regulatory_report(data.location, data.rainfall_mm, data.risk_level)
-
-@app.post("/alert_operator")
-def api_alert_operator_post(data: AlertInput):
-    return alert_operator(data.message)
-
-@app.post("/suggest_action")
-def api_suggest_action_post(data: SuggestionInput):
-    return suggest_action_for_risk(data.risk_level)
-
-@app.get("/logged_interventions")
-def api_logged_interventions():
+# -----------------------------
+# 🧾 Utilities
+# -----------------------------
+@app.get("/interventions")
+def api_get_intervention_logs():
     return get_logged_interventions()
 
-@app.get("/parameter_descriptions")
-def api_parameter_descriptions():
+@app.get("/parameters")
+def api_parameters():
     return get_parameter_descriptions()
-
-@app.get("/river_impact_severity")
-def api_river_impact_severity(location: str = "London"):
-    return get_river_impact_severity(location)
-
-@app.get("/coordinate")
-def api_coordinate(location: str = "London"):
-    return storm_response_coordinator(location)
