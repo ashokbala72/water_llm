@@ -7,7 +7,6 @@ python-dotenv
 tenacity
 cryptography
 paho-mqtt
-sqlite3-binary
 pymodbus
 opcua
 pandas
