@@ -3,6 +3,11 @@ from fastapi import FastAPI, Query, Body
 from pydantic import BaseModel
 from typing import Optional
 from Water_llm_ENGINE_WITH_CONTEXTUAL_ADVISORY import *
+try:
+    import openai
+    print("✅ OpenAI module loaded successfully.")
+except ModuleNotFoundError as e:
+    print(f"❌ Module load failed: {e}")
 
 app = FastAPI(title="Water LLM Stormwater Engine API")
 
