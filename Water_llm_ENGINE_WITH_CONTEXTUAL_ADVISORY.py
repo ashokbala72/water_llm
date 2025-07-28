@@ -14,7 +14,8 @@ class WeatherData(BaseModel):
 class SensorData(BaseModel):
     inflow_rate_lps: float
     tank_fill_percent: float
-from openai import OpenAI
+import OpenAI
+openai.api_key = os.getenv("OPENAI_API_KEY")
 import logging
 from tenacity import retry, stop_after_attempt, wait_fixed
 from pydantic import BaseModel, ValidationError
@@ -56,7 +57,7 @@ try:
 except ImportError:
     ModbusTcpClient = None
 load_dotenv()
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
 DB_PATH = 'integration.db'
 LOG_FILE = 'logs/water_llm_log.json'
 os.makedirs('logs', exist_ok=True)
