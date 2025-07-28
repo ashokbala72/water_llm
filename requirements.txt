@@ -1,12 +1,1 @@
-fastapi
-uvicorn
-openai==1.17.0
-pydantic
-requests
-python-dotenv
-tenacity
-cryptography
-paho-mqtt
-pymodbus
-opcua
-pandas
+openai>=1.0.0
