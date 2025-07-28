@@ -14,7 +14,7 @@ class WeatherData(BaseModel):
 class SensorData(BaseModel):
     inflow_rate_lps: float
     tank_fill_percent: float
-from openai import OpenAI
+import openai
 
 import logging
 from tenacity import retry, stop_after_attempt, wait_fixed
@@ -57,7 +57,7 @@ try:
 except ImportError:
     ModbusTcpClient = None
 load_dotenv()
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+openai.api_key = os.getenv("OPENAI_API_KEY")
 DB_PATH = 'integration.db'
 LOG_FILE = 'logs/water_llm_log.json'
 os.makedirs('logs', exist_ok=True)
@@ -132,13 +132,23 @@ def fetch_sensor_data(location='London'):
         return {'error': str(e)}
 
 @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
+import openai
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
 def call_gpt(prompt, temperature=0.3):
-    """Call gpt function."""
+    """Call GPT using standard OpenAI SDK (compatible across versions)."""
     try:
-        response = client.chat.completions.create(model='gpt-4', messages=[{'role': 'system', 'content': 'You are a water infrastructure expert and regulatory advisor.'}, {'role': 'user', 'content': prompt}], temperature=temperature)
-        return response.choices[0].message.content.strip()
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a water infrastructure expert and regulatory advisor."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=temperature
+        )
+        return response.choices[0].message['content'].strip()
     except Exception as e:
-        logger.error(f'❌ Failed to write tank balancer log: {e}')
+        logger.error(f'❌ OpenAI call failed: {e}')
         return 'OpenAI call failed.'
 
 def calculate_overflow_risk(rain_mm, tank_fill_percent):
