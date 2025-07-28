@@ -14,7 +14,7 @@ class WeatherData(BaseModel):
 class SensorData(BaseModel):
     inflow_rate_lps: float
     tank_fill_percent: float
-import OpenAI
+import openai
 openai.api_key = os.getenv("OPENAI_API_KEY")
 import logging
 from tenacity import retry, stop_after_attempt, wait_fixed
