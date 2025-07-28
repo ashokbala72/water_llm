@@ -58,7 +58,7 @@ try:
 except ImportError:
     ModbusTcpClient = None
 load_dotenv()
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
 DB_PATH = 'integration.db'
 LOG_FILE = 'logs/water_llm_log.json'
 os.makedirs('logs', exist_ok=True)
