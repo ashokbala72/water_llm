@@ -1,4 +1,5 @@
 import os
+import httpx
 import json
 import sqlite3
 import requests
@@ -56,7 +57,11 @@ try:
 except ImportError:
     ModbusTcpClient = None
 load_dotenv()
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    http_client=httpx.Client(proxies=None)  # 👈 disables Railway's default proxy injection
+)
+
 DB_PATH = 'integration.db'
 LOG_FILE = 'logs/water_llm_log.json'
 os.makedirs('logs', exist_ok=True)
