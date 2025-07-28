@@ -133,12 +133,19 @@ def fetch_sensor_data(location='London'):
 
 @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
 def call_gpt(prompt, temperature=0.3):
-    """Call gpt function."""
+    """Call GPT using standard OpenAI SDK (compatible across versions)."""
     try:
         response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a water infrastructure expert and regulatory advisor."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=temperature
+        )
         return response.choices[0].message['content'].strip()
     except Exception as e:
-        logger.error(f'❌ Failed to write tank balancer log: {e}')
+        logger.error(f'❌ OpenAI call failed: {e}')
         return 'OpenAI call failed.'
 
 def calculate_overflow_risk(rain_mm, tank_fill_percent):
