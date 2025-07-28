@@ -1,22 +1,23 @@
 # Use official Python image
 FROM python:3.11-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
 # Set working directory
 WORKDIR /app
 
-# Copy all necessary files
-COPY Water_llm_ENGINE_WITH_CONTEXTUAL_ADVISORY.py .
+# Copy all files into the container
+COPY . /app
 
-# Install dependencies
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# Create the logs directory
+RUN mkdir -p /app/logs
 
-# Expose port (if needed for FastAPI later)
+# Install required Python packages
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Expose port (optional, if running web service)
 EXPOSE 8000
 
-# Run the engine script directly (can replace with FastAPI server later)
-CMD ["python3", "Water_llm_ENGINE_WITH_CONTEXTUAL_ADVISORY.py"]
+# Set environment variable for OpenAI key (you can override this in AWS)
+ENV OPENAI_API_KEY=your_default_key_here
+
+# Run the app
+CMD ["python", "Water_llm_ENGINE_WITH_CONTEXTUAL_ADVISORY.py"]
