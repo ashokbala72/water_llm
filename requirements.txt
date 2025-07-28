@@ -3,3 +3,6 @@ uvicorn
 openai>=1.0.0
 python-dotenv
 requests
+paho-mqtt
+pandas
+tenacity
