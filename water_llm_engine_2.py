@@ -135,9 +135,7 @@ def fetch_sensor_data(location='London'):
 def call_gpt(prompt, temperature=0.3):
     """Call GPT using standard OpenAI SDK (compatible across versions)."""
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
+        response = openai.ChatCompletion.create(model="gpt-4",messages=[
                 {"role": "system", "content": "You are a water infrastructure expert and regulatory advisor."},
                 {"role": "user", "content": prompt}
             ],
