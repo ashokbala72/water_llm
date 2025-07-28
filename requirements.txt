@@ -6,3 +6,4 @@ opcua
 pymodbus
 fastapi
 uvicorn
+tenacity
