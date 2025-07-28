@@ -14,7 +14,8 @@ class WeatherData(BaseModel):
 class SensorData(BaseModel):
     inflow_rate_lps: float
     tank_fill_percent: float
-from openai import openai
+from openai import OpenAI
+
 import logging
 from tenacity import retry, stop_after_attempt, wait_fixed
 from pydantic import BaseModel, ValidationError
